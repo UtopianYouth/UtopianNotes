@@ -167,3 +167,20 @@ void msleep(unsigned long msecs);
 `QML` 属性可以依赖于其他属性，这种行为被称为绑定，类似于信号槽机制，所依赖属性发生变化，该属性会得到通知，自动更新自己的值。
 
 `QML` 所有属性都有对应数值改变的槽函数，格式为 `on + 属性名 + Changed`，属性名首字母大写，属性改变会发出相应的信号比如 `height` 属性改变，发出 `heightChanged` 信号。
+
+# 三、Visual Studio 开发 Qt 项目
+
+使用 Visual Studio开发 Qt 项目，得益于 Visual Studio 的强大功能，可以极大的提高项目的开发效率。
+
+> ###### 配置所需要的相关环境
+>
+> - 下载 QT Creator 并且搭建 Qt 开发环境
+>
+> - 下载 Visual Studio 相关的 Qt 插件
+>
+> - 下载 `windows SDK`
+>
+> ###### 基本步骤
+>
+> - 使用 QT Creator 创建一个 QT 项目
+> - 在 QT 项目文件夹下，使用命令 `qmake -tp vc` 构建 VS 项目，使用 VS 打开生成的 `.vcxpro` 项目文件
