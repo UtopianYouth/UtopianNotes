@@ -1,12 +1,15 @@
+[TOC]
+
 # 第三章 Linux多进程开发
 
-### 3.2 进程的状态转换
+## 3.2 进程的状态转换
 
 进程在 OS 运行的过程中，有五种常见的状态，分别是：**创建态、就绪态、运行态、阻塞态和结束态**，**这五种状态之间的转换关系以及转换发生的条件**如下图所示。
 
 <center>
-  <img src = "./images/Linux网络编程与实战/第三章 Linux多进程开发/3-2 进程状态迁移图.png" width = "95%">
+  <img src = "./images/第三章 Linux多进程开发/3-2 进程状态迁移图.png" width = "95%">
 </center>
+
 
 `linux`中，提供了`top`命令，**实时显示进程的运行状态**，`top`命令的解释如下：
 
@@ -97,16 +100,15 @@
 > - `kill -9 pid`：和如上命令等价
 > - `killall name`：根据进程名杀死进程
 
-### 3.3 进程创建
+## 3.3 进程创建
 
 `linux`中，提供了**进程创建的函数`fork()`**，可以通过`man 2 fork`指令查看具体使用。
 
 ```c
+#include<sys/types.h>
+#include<unistd.h>
+pid_t fork(void);
 /*
- 	#include<sys/types.h>
-  #include<unistd.h>
-
-  pid_t fork(void);
   函数功能：创建子进程
   返回值：创建子进程成功之后，fork的返回值会返回两次，一次是在父进程中，一次是在子进程中
     - 在父进程中返回创建子进程的PID > 0
@@ -116,14 +118,11 @@
     
 */
 
-#include<stdio.h>
-#include<sys/types.h>
-#include<unistd.h>
 
 /*
-    argc和argv都是用来处理命令行的参数
-    argc: 是一个整数，表示传递给程序的命令行参数数量
-    argv: 字符指针数组，包含了所有命令行参数的值，每一个元素都是指向字符串首地址的指针
+	argc 和 argv 都是用来处理命令行的参数
+  argc: 是一个整数，表示传递给程序的命令行参数数量
+  argv: 字符指针数组，包含了所有命令行参数的值，每一个元素都是指向字符串首地址的指针
 */
 int main(int argc, char* argv[]) {
     int num = 10;
@@ -141,19 +140,19 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 3.4 父子进程虚拟地址空间情况
+## 3.4 父子进程虚拟地址空间情况
 
-&emsp;&emsp;使用`fork()`创建的子进程，与**父进程具有相同的用户区**，同时，子进程**内核区的一部分也会从父进程拷贝过来（并非全部拷贝，比如`pid`等需要重新赋值）**
+使用`fork()`创建的子进程，与**父进程具有相同的用户区**，同时，子进程**内核区的一部分也会从父进程拷贝过来（并非全部拷贝，比如`pid`等需要重新赋值）。**
 
-&emsp;&emsp;关于**子进程对用户空间写时拷贝**，在linux中，`fork()`使用的是写时拷贝（copy-on-write）实现的，写时拷贝是一种**可以推迟甚至避免拷贝数据的技术（有时候，我们的子进程不存在写操作，这时，拷贝一份父进程的用户空间是没有必要的，会造成内存的浪费）**。
+关于**子进程对用户空间写时拷贝**，在linux中，`fork()`使用的是写时拷贝（copy-on-write）实现的，写时拷贝是一种**可以推迟甚至避免拷贝数据的技术（有时候，我们的子进程不存在写操作，这时，拷贝一份父进程的用户空间是没有必要的，会造成内存的浪费）**。
 
-&emsp;&emsp;具体地，在`fork()`时，系统仅仅为子进程创建**内核空间**，其余的用户区、栈空间和共享库等地址空间**和父进程一起共享**，只有在子进程**需要写入的时候**，才会**复制其余的地址空间**。
+具体地，在`fork()`时，系统仅仅为子进程创建**内核空间**，其余的用户区、栈空间和共享库等地址空间**和父进程一起共享**，只有在子进程**需要写入的时候**，才会**复制其余的地址空间**。
 
-&emsp;&emsp;<font color = red>注意</font>，执行`fork()`函数之后，父子进程共享文件，`fork()`产生的子进程和父进程**具有相同的文件描述符，指向相同的文件表**，引用计数增加，共享文件偏移指针。
+<font color = red>注意</font>，执行`fork()`函数之后，父子进程共享文件，`fork()`产生的子进程和父进程**具有相同的文件描述符，指向相同的文件表**，引用计数增加，共享文件偏移指针。
 
-### 3.5 父子进程关系及GDB多进程调试
+## 3.5 父子进程关系及GDB多进程调试
 
-#### 3.5.1 `fork()`函数下父子进程之间的关系
+### 3.5.1 `fork()`函数下父子进程之间的关系
 
 `linux`中，父进程通过`fork()`函数创建的子进程有以下关系：
 
@@ -172,7 +171,7 @@ int main(int argc, char* argv[]) {
 >    - 读时共享（除了内核区）
 >    - 写时拷贝（子进程需要对非内核区的变量进行写操作时）	
 
-#### 3.5.2 `GDB(GNU Debugger)`多进程调试
+### 3.5.2 `GDB(GNU Debugger)`多进程调试
 
 在使用`GDB`调试的时候，默认只能跟踪一个进程，**可以在`fork()`函数调用之前，设置断点**，然后通过指令设置`GDB`**是跟踪父进程逻辑还是子进程逻辑**，默认跟踪父进程逻辑，使用`GDB`进行调试的基本流程如下：
 
@@ -192,19 +191,17 @@ int main(int argc, char* argv[]) {
 > - 切换当前调试的进程：`inferior id`
 > - 使进程脱离`GDB`调试：`detach inferiors id`
 
-### 3.6 `exec(executable)`函数族（函数重载）
+## 3.6 `exec(executable)`函数族（函数重载）
 
-> `exec`函数族的作用是根据指定的文件名找到可执行文件，并用它来取代调用进程的内容，**也可以理解为在调用进程内部执行一个可执行程序**。
->
-> <font color= red>注意：</font>`exec()`函数族函数执行成功后，**不会返回到原来调用函数的上下文继续执行**，因为调用进程的**实体，包括代码段、数据段和堆栈等都已经被新的内容取代**，只保留了进程 ID 等一些表面上的信息。只有调用失败了，才会返回 -1，从原程序的调用点接着往下执行。
+`exec`函数族的作用是根据指定的文件名找到可执行文件，并用它来取代调用进程的内容，**也可以理解为在调用进程内部执行一个可执行程序**。
+
+<font color= red>注意：</font>`exec()`函数族函数执行成功后，**不会返回到原来调用函数的上下文继续执行**，因为调用进程的**实体，包括代码段、数据段和堆栈等都已经被新的内容取代**，只保留了进程 ID 等一些表面上的信息。只有调用失败了，才会返回 -1，从原程序的调用点接着往下执行。
 
 ```c
+#include <unistd.h>
+
 /*
 	man 3 execl 
-	
-  #include <unistd.h>
-  
-  int execl(const char *path, const char *arg, ...);
   函数功能：在一个进程内部执行可执行文件
   函数参数：
   	- path：可执行文件的路径 + 文件名，推荐使用绝对路径
@@ -215,8 +212,10 @@ int main(int argc, char* argv[]) {
   返回值
   	- 调用成功：没有返回值（很好理解，进程的虚拟地址空间，除了内核区，都被调用的可执行文件覆盖了，找不到现场，无法返回）
   	- 调用失败：返回值为-1，并且设置errno
-  
-  int execlp(const char *file, const char *arg, ...);
+*/
+int execl(const char *path, const char *arg, ...);
+
+/*
   函数功能：和上面函数一样，唯一不同的是，调用参数
   函数参数：
   	- file: 需要执行可执行文件的文件名（与execl的区别是，不需要指定可执行文件的绝对路径，自动在系统的环境变量中寻找），适合执行内核相关的可执行文件
@@ -228,6 +227,9 @@ int main(int argc, char* argv[]) {
   	- 调用成功，没有返回值（很好理解，进程的虚拟地址空间，除了内核区，都被调用的可执行文件覆盖了，找不到现场，无法返回）
   	- 调用失败，返回值为-1，并且设置errno
 */
+int execlp(const char *file, const char *arg, ...);
+
+
 #include <unistd.h>
 
 int main(int argc, char* argv[]) {
@@ -261,7 +263,7 @@ int main(int argc, char* argv[]) {
 
 ```
 
-### 3.7 进程控制（孤儿进程、僵尸进程、进程退出）
+## 3.7 进程控制（孤儿进程、僵尸进程、进程退出）
 
 > <font color = green>孤儿进程：</font>父进程运行结束，但是子进程还在运行，这样的子进程就称为**孤儿进程（Orphan Process）**。
 >
@@ -280,10 +282,8 @@ int main(int argc, char* argv[]) {
 > 所以，如果一个进程结束时，调用的是`_exit()`函数，**就是进程退出**。
 >
 > <center>
->   <img src = "D:\\Notes\\CppStudy\\images\\Linux网络编程与实战\\第三章 Linux多进程开发\\3-7 进程退出1.png" width = 45%/>
+>   <img src = "./images/第三章 Linux多进程开发/3-7 进程退出1.png" width = 45%/>
 > </center>
->
->  
 
 <font color = green>孤儿进程示例：</font>
 
@@ -388,7 +388,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 3.8 进程回收、`wait()`和`waitpid()`系统调用
+## 3.8 进程回收、`wait()`和`waitpid()`系统调用
 
 在谈`wait()`和`waitpid()`这两个系统调用的作用之前，我们先来谈谈<font color = green>什么是进程回收？</font>
 
@@ -404,8 +404,8 @@ int main(int argc, char* argv[]) {
 > /*
 >     函数功能：等待任意一个子进程结束，回收子进程的所有资源
 >     函数参数：
->        - wstatus，子进程退出时的状态信息
->     返回值
+>  		- wstatus，子进程退出时的状态信息
+> 	返回值
 >     - 成功：返回被回收的子进程pid
 >     - 失败：-1，设置错误号（所有子进程都结束了且没有可以回收的子进程资源，或者是调用函数失败）
 > 
@@ -560,15 +560,13 @@ int main(int argc, char* argv[]) {
 > - `WSTOPSIG(status)`：如果上述宏为真，获取使进程暂停的信号的编号
 > - `WIFCONTINUED(status)`：非0，进程暂停后已经继续运行
 
-
-
-### 3.9 进程间通信简介
+## 3.9 进程间通信简介
 
 linux 中，进程是一个独立的资源分配单元，不同进程之间的资源是相互独立的，**不能在一个进程中直接访问另一个进程的资源**。
 
 但是，进程在运行的过程中，又不是孤立的，**不同进程之间需要进行信息的交互和状态的传递等**，因此需要<font color= red>进程间通信（Inter Processes Communication, IPC）</font>。
 
-### 3.9.1 linux 进程间通信的几种方式
+## 3.9.1 linux 进程间通信的几种方式
 
 > 进程之间**进行通信的主要目的有如下：**
 >
@@ -580,23 +578,21 @@ linux 中，进程是一个独立的资源分配单元，不同进程之间的�
 > **进程间通信的几种方式**，大致可以总结为以下几种：
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-10 linux进程通信方式.png" width = "70%">
+>   <img src = "./images/第三章 Linux多进程开发/3-10 linux进程通信方式.png" width = "70%">
 > </center>
 
 ### 3.10 匿名管道概述
 
-> <font color =red>管道介绍</font>
+> <font color =green>管道介绍</font>
 >
 > - 它是 UNIX 系统 IPC 的最古老形式，所有的 UNIX 系统都支持这种通信机制
 > - 举例子：使用一个 shell 命令`ls | wc -l`统计一个目录中文件的数目，为了执行该命令， shell 创建了两个进程，分别执行 `ls` 和 `wc`：
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-10 匿名管道1.png" width = "80%"> 
+>   <img src = "./images/第三章 Linux多进程开发\3-10 匿名管道1.png" width = "80%"> 
 > </center>
->
-> 
 
-#### 3.10.1 管道特点
+### 3.10.1 管道特点
 
 > - 管道其实是一个在内存的内核空间中，维护的一个缓冲器（缓冲区），这个缓冲器的**存储能力是有限的**，不同的操作系统大小不一定相同。
 > - 管道拥有文件的特质：读操作、写操作，**匿名管道没有文件实体，有名管道有文件实体（通过文件描述符实现），但不存储数据**，可以按照操作文件的方式，对管道进程操作。
@@ -608,10 +604,10 @@ linux 中，进程是一个独立的资源分配单元，不同进程之间的�
 > - 管道的实现使用的数据结构是循环队列。
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-11 匿名管道的特点3.png" width = "80%">
+>   <img src = "./images/第三章 Linux多进程开发/3-11 匿名管道的特点3.png" width = "80%">
 > </center>
 
-#### 3.10.2 匿名管道的通信原理
+### 3.10.2 匿名管道的通信原理
 
 前面 <font color = red>3.10.1</font> 中我们说到，**匿名管道只能在具有公共祖先的进程之间使用**，这是为什么呢？
 
@@ -620,19 +616,19 @@ linux 中，进程是一个独立的资源分配单元，不同进程之间的�
 > 但是，在具有公共祖先的进程中，**它们 PCB 中的文件描述符表是共享的**，如果我们在祖先进程中，创建匿名管道，**并且通过文件描述符表标记匿名管道的读端和写端**。这样，通过祖先进程创建的其他子进程，**由于具有相同的文件描述符表，就可以找到祖先进程创建的匿名管道**，进而实现 IPC。
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-11 匿名管道通信原理图1.png" width = "80%">
+>   <img src = "./images/第三章 Linux多进程开发/3-11 匿名管道通信原理图1.png" width = "80%">
 > </center>
 
-#### 3.10.3 匿名管道的使用
+### 3.10.3 匿名管道的使用
 
 > <font color = green>创建匿名管道</font>
 >
 > ```c
 > #include <unistd.h>
-> int pipe(int pipefd[2]);
+> 
 > /*
->   函数功能：创建一个匿名管道，用来进程间通信
->     函数参数
+> 函数功能：创建一个匿名管道，用来进程间通信
+>  函数参数
 >     - pipefd[2]: 传出参数
 >     - pipefd[0]: 对应管道的读端
 >     - pipefd[1]: 对应管的道写端
@@ -642,6 +638,7 @@ linux 中，进程是一个独立的资源分配单元，不同进程之间的�
 > 
 >     tips：匿名管道只能用于亲子进程之间的通信，因为亲子进程在创建的过程中，具有相同的内核区文件描述符表
 > */
+> int pipe(int pipefd[2]);
 > ```
 >
 > <font color = green>查看管道大小的命令</font>
@@ -652,7 +649,7 @@ linux 中，进程是一个独立的资源分配单元，不同进程之间的�
 >
 > ```c
 > #include<unistd.h>
-> long fpathconf(int fd, int name);
+> 
 > /*
 > 	函数功能：获取与文件或文件系统相关的配置参数（这种参数通常是一种限制，比如缓冲区大小等等）
 > 	函数参数
@@ -662,10 +659,10 @@ linux 中，进程是一个独立的资源分配单元，不同进程之间的�
 > 	- 成功：返回对应的配置参数限制
 > 	- 失败：返回 -1，如果配置参数没有限制，也返回 -1
 > */
-> 
+> long fpathconf(int fd, int name);
 > ```
 
-#### 3.10.4 匿名管道通信案例1
+### 3.10.4 匿名管道通信案例1
 
 ```c
 /*
@@ -713,7 +710,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 3.10.5 匿名管道通信案例2
+### 3.10.5 匿名管道通信案例2
 
 ```c
 /*
@@ -778,9 +775,9 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 3.10.6 匿名管道的读写特点和匿名管道设置为非阻塞
+### 3.10.6 匿名管道的读写特点和匿名管道设置为非阻塞
 
-##### 3.10.6.1 管道的读写特点
+#### 3.10.6.1 管道的读写特点
 
 > - **当所有指向管道写端的文件描述符都关闭了（管道写端引用计数等于 0）**，有进程从管道的读端**读数据**，那么管道中剩余的数据被读取完后，该进程再次调用`read()`系统调用时，**会返回 0，就像读到文件的末尾一样（读端的进程不会被阻塞，因为就算阻塞等待了，也没有用，不会有进程向管道写数据）**。
 >
@@ -789,7 +786,7 @@ int main(int argc, char* argv[]) {
 > - **当所有指向管道读端的文件描述符都关闭了（管道读端引用计数等于 0）**，有进程从管道的写端**写数据**，那么写端的写进程**会收到一个异常信号 `SIGPIPE`**，通常会导致**写进程异常终止（对管道只有写操作，没有读操作，很容易导致内存溢出）**。
 > -  **当存在指向管道读端的文件描述符没有关闭（管道读端的引用计数大于 0）**，并且持有管道读端文件描述符的进程**没有从管道中读数据**，有进程从管道的写端**写数据**，那么当管道被写满时，再次调用`write()`系统调用时，**会返回-1，进程进入阻塞状态（直到读端的进程从管道中读数据，使得管道中有空位置才能再次写入数据）**。
 
-##### 3.10.6.2 匿名管道读写特点总结
+#### 3.10.6.2 匿名管道读写特点总结
 
 > <font color = green>读管道：</font>
 >
@@ -801,7 +798,7 @@ int main(int argc, char* argv[]) {
 > - **管道读端的文件描述符全部被关闭**，进程异常终止（进程收到`SIGPIPE`信号）。
 > - **管道读端文件描述符没有全部被关闭**，**管道没有满**，`write()`系统调用将数据写入管道，返回写入的`byte`数量，**管道已满**，`write()`系统调用**使进程阻塞（等待读端的进程从管道中读数据）。**
 
-##### 3.10.6.3 将匿名管道设置为非阻塞
+#### 3.10.6.3 将匿名管道设置为非阻塞
 
 从 <font color = red>3.10.6.2</font> 中我们可以知道，**当管道写端文件描述符没有全部被关闭时**，管道为空，读端进程读管道会被阻塞，同理，**当管道读端文件描述符没有全部被关闭时**，管道满，写端进程写管道会被阻塞。UNIX OS 的内核中，可以设置**上述两种情况为非阻塞**。
 
@@ -880,7 +877,7 @@ int main(int agrc, char* argv[]) {
 
 ```
 
-### 3.11 有名管道概述
+## 3.11 有名管道概述
 
 匿名管道，由于没有绑定实体文件，只是通过**各自进程的文件描述符标记管道的读端和写端**，只能用于亲子进程通信，为了克服这个缺点，提出了有名管道（FIFO），也叫命名管道、FIFO文件。
 
@@ -895,7 +892,7 @@ int main(int agrc, char* argv[]) {
 > - 当使用 FIFO 的进程退出后，FIFO 文件将继续保存到文件系统中。
 > - FIFO 有名字（即 FIFO 相关的文件在内存中被打开后，**和普通文件一样，有一个`Inode`表项**），没有亲子关系的进程可以通过`Inode`表项找到打开的 FIFO，进行通信。
 
-#### 3.11.1 有名管道的使用
+### 3.11.1 有名管道的使用
 
 > <font color = green>第一步，先创建有名管道，也是最重要的一步</font>
 >
@@ -937,7 +934,7 @@ int main(int agrc, char* argv[]) {
 > - **当只有一个进程以只读的方式打开有名管道**，该进程会<font color = red>阻塞，`open()`系统调用导致的阻塞</font>，**直到有其他进程以只写的方式打开有名管道**，阻塞的进程**才会被唤醒**。
 > - 同理，**当只有一个进程以只写的方式打开有名管道**，该进程也会被<font color = red>阻塞，`open()`系统调用导致的阻塞</font>，**直到有其他进程以只读的方式打开有名管道**，阻塞的进程**才会被唤醒**。
 
-#### 3.11.2 有名管道的读写特点
+### 3.11.2 有名管道的读写特点
 
 > <font color = green>读管道：</font>
 >
@@ -950,7 +947,7 @@ int main(int agrc, char* argv[]) {
 > - **管道读端文件描述符没有全部被关闭**，**管道没有满**，`write()`系统调用将数据写入管道，返回写入的`byte`数量，**管道已满**，`write()`系统调用**使进程阻塞（等待读端的进程从管道中读数据）。**
 >
 
-#### 3.11.3 有名管道实现简单的聊天功能
+### 3.11.3 有名管道实现简单的聊天功能
 
 > <font color = green>FIFO 实现简单版聊天功能案例基本思路：</font>
 >
@@ -1159,17 +1156,15 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 3.12 内存映射
+## 3.12 内存映射
 
 > 内存映射（Memory-mapped I/O）的原理非常简单，就是将磁盘文件的数据映射到内存，用户通过内存就能修改磁盘文件。
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-17 内存映射1.png" width = "90%">
+>   <img src = "./images/第三章 Linux多进程开发/3-17 内存映射1.png" width = "90%">
 > </center>
->
-> 
 
-#### 3.12.1 内存映射相关系统调用
+### 3.12.1 内存映射相关系统调用
 
 ```c
 #include <sys/mman.h>
@@ -1210,7 +1205,7 @@ int munmap(void *addr, size_t length);
 */
 ```
 
-#### 3.12.2 内存映射实现进程间通信
+### 3.12.2 内存映射实现进程间通信
 
 > <font color = green>有关系的进程（父子进程）间通信</font>
 >
@@ -1231,7 +1226,7 @@ int munmap(void *addr, size_t length);
 >
 > <font color = red>注意：使用内存映射区进行通信，是非阻塞的。</font>
 
-#### 3.12.3 内存映射使用注意事项
+### 3.12.3 内存映射使用注意事项
 
 > ###### 1. 如果对内存映射创建函数`mmap()`的返回值`ptr`做`++`操作，内存映射释放函数`munmap()`是否能够成功？
 >
@@ -1330,9 +1325,8 @@ int munmap(void *addr, size_t length);
 > char buf[1024] = ptr + 1025;
 > ```
 >
-> 
 
-#### 3.12.4 内存映射实现进程间通信案例
+### 3.12.4 内存映射实现进程间通信案例
 
 ```c
 /*
@@ -1567,7 +1561,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 3.12.5 内存映射之匿名映射
+### 3.12.5 内存映射之匿名映射
 
 > <font color = green>匿名映射</font>
 >
@@ -1626,7 +1620,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 3.13 信号概述
+## 3.13 信号概述
 
 > <font color = green>信号的概念</font>
 >
@@ -1648,10 +1642,10 @@ int main(int argc, char* argv[]) {
 > - 查看系统定义的信号列表：`kill -l`，其中前 31 个信号为常规信号，其余信号为实时信号。
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-19 Linux的62个信号.png" width = "90%">
+>   <img src = "./images/第三章 Linux多进程开发/3-19 Linux的62个信号.png" width = "90%">
 > </center>
 
-#### 3.13.1 Linux 信号一览表
+### 3.13.1 Linux 信号一览表
 
 | 编号 | 信号名称 | 对应事件 | 默认动作 |
 | :--- | -------- | -------- | -------- |
@@ -1688,7 +1682,7 @@ int main(int argc, char* argv[]) {
 |      |          |          |          |
 |      |          |          |          |
 
-#### 3.13.2 信号的 5 种默认处理动作
+### 3.13.2 信号的 5 种默认处理动作
 
 > - 查看信号的详细信息：`man 7 signal`
 > - 信号的 5 种默认处理动作
@@ -1701,7 +1695,7 @@ int main(int argc, char* argv[]) {
 > - 信号的几种状态：产生，未决（即产生了，还没有发送给进程的信号），递达
 > - `SIGKILL`和`SIGSTOP`信号不能被捕捉、阻塞或者忽略，只能执行默认动作
 
-#### 3.13.3 信号相关的函数
+### 3.13.3 信号相关的函数
 
 - `kill()`系统调用
 
@@ -1890,7 +1884,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 3.13.4 `signal()`系统调用
+### 3.13.4 `signal()`系统调用
 
 > `signal()`系统调用的主要功能是，**对某一个信号进行捕捉，并且可以自定义捕捉到信号的行为**。
 
@@ -2003,7 +1997,7 @@ int main(int argc, char* argv[]) {
 */
 ```
 
-#### 3.13.5 信号集概述
+### 3.13.5 信号集概述
 
 > - 许多信号相关的系统调用，都需要能表示一组不同的信号，**多个信号可以使用一个称之为信号集的数据结构来表示**，信号集的数据类型为`sigset_t`。
 >
@@ -2036,58 +2030,59 @@ int main(int argc, char* argv[]) {
 >     - 如果**阻塞**了，这个信号就**继续处于未决状态**，直到阻塞信号集中，**对应的标志位为0**，阻塞解除，这个未决信号就被处理
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-24 阻塞信号集和未决信号集1.png" width = "90%">
+>   <img src = "./images/第三章 Linux多进程开发/3-24 阻塞信号集和未决信号集1.png" width = "90%">
 > </center>
 
-#### 3.13.6 信号集相关函数
+### 3.13.6 信号集相关函数
 
 ```c
 #include <signal.h>
+
+/*
+	函数功能：清空阻塞信号集中的数据，将信号集中所有的标志位置为 0
+  函数参数
+	  - set：传出参数，需要清空的信号集地址
+  返回值：成功返回0，失败返回-1
+*/
 int sigemptyset(sigset_t *set);
-/*
-    - 函数功能：清空阻塞信号集中的数据，将信号集中所有的标志位置为 0
-    - 函数参数
-        - set：传出参数，需要清空的信号集地址
-    - 返回值：成功返回0，失败返回-1
-*/
 
+/*
+	函数功能：将阻塞信号集中所有的标志位置1
+	函数参数
+		- set：传出参数，需要填充的信号集地址
+	返回值：成功返回0，失败返回-1
+*/
 int sigfillset(sigset_t *set);
-/*
-    - 函数功能：将阻塞信号集中所有的标志位置1
-    - 函数参数
-        - set：传出参数，需要填充的信号集地址
-    - 返回值：成功返回0，失败返回-1
-*/
 
+/*
+	函数功能：设置阻塞信号集中的某一位对应的标志位为 1，表示阻塞这个信号
+	函数参数
+		- set：传出参数，需要操作的信号集
+		- signum：需要设置阻塞的信号编号
+	返回值：成功返回0，失败返回-1
+*/
 int sigaddset(sigset_t *set, int signum);
-/*
-    - 函数功能：设置阻塞信号集中的某一位对应的标志位为 1，表示阻塞这个信号
-    - 函数参数
-        - set：传出参数，需要操作的信号集
-        - signum：需要设置阻塞的信号编号
-    - 返回值：成功返回0，失败返回-1
-*/
 
+/*
+	函数功能：设置阻塞信号集中的某一位对应的标志位为 0，表示不阻塞这个信号
+	函数参数
+		- set：传出参数，需要操作的信号集
+		- signum：需要设置不阻塞的信号编号
+	返回值：成功返回0，失败返回-1
+*/
 int sigdelset(sigset_t *set, int signum);
-/*
-    - 函数功能：设置阻塞信号集中的某一位对应的标志位为 0，表示不阻塞这个信号
-    - 函数参数
-        - set：传出参数，需要操作的信号集
-        - signum：需要设置不阻塞的信号编号
-    - 返回值：成功返回0，失败返回-1
-*/
 
-int sigismember(const sigset_t *set, int signum);
 /*
-    - 函数功能：判断某个信号是否阻塞
-    - 函数参数
-        - set：需要操作的信号集
-        - signum：需要判断的那个信号编号
-    - 返回值
-        1：signum被阻塞
-        0：signum不阻塞
-        -1：函数调用失败
+	函数功能：判断某个信号是否阻塞
+	函数参数
+		- set：需要操作的信号集
+		- signum：需要判断的那个信号编号
+	返回值
+		1：signum被阻塞
+		0：signum不阻塞
+		-1：函数调用失败
 */
+int sigismember(const sigset_t *set, int signum);
 
 /*
 		信号集相关函数使用例子
@@ -2149,47 +2144,46 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 3.13.7 内核实现信号捕捉的过程
+### 3.13.7 内核实现信号捕捉的过程
 
-> UNIX OS 中，**内核实现信号捕捉的过程**，可以用下图直观的表示。
->
-> <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-26 内核实现信号捕捉的过程.png" width = "90%">
-> </center>
+UNIX OS 中，**内核实现信号捕捉的过程**，可以用下图直观的表示。
 
-#### 3.13.8 `sigprocmask()`系统调用
+<center>
+<img src = "./images/第三章 Linux多进程开发/3-26 内核实现信号捕捉的过程.png" width = "90%">
+</center>
+
+### 3.13.8 `sigprocmask()`系统调用
 
 > `sigpromask()`系统调用，主要的功能是将自定义的阻塞信号集**所有标志位**，设置到**内核阻塞信号集中**。
 >
 > ```c
 > #include <signal.h>
+> 
+> /*
+> 	函数功能：将自定义信号集中的数据设置到内核中（设置阻塞，解除阻塞，替换）
+> 	函数参数
+> 		- how：如何对内核阻塞信号集进行处理
+> 			- SIG_BLOCK：将用户设置的阻塞信号集添加到内核中，内核中原来的数据不变，假设用户自定义信号集是 set，内核中阻塞信号集是 mask， mask = mask | set
+> 			- SIG_UNBLOCK：根据用户设置的数据，对内核中的数据进行解除阻塞，假设用户自定义信号集是 set，内核中阻塞信号集是 mask，mask = mask & (~set)
+> 			- SIG_SETMASK：覆盖内核中原来的值
+> 
+> 		- set：用户自定义的阻塞信号集
+> 		- oldset：备份（存储）修改之前的内核中阻塞信号集内容
+> 	返回值
+> 		- 成功：0
+> 		- 失败：-1，设置错误号，EFAULT 或 EINVAL
+> */
 > int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
+> 
 > /*
->     - 函数功能：将自定义信号集中的数据设置到内核中（设置阻塞，解除阻塞，替换）
->     - 函数参数
->         - how：如何对内核阻塞信号集进行处理
->             - SIG_BLOCK：将用户设置的阻塞信号集添加到内核中，内核中原来的数据不变
->             - 假设用户自定义信号集是 set，内核中阻塞信号集是 mask， mask = mask | set
->             - SIG_UNBLOCK：根据用户设置的数据，对内核中的数据进行解除阻塞
->             - 假设用户自定义信号集是 set，内核中阻塞信号集是 mask，mask = mask & (~set)
->             - SIG_SETMASK：覆盖内核中原来的值
-> 
->         - set：用户自定义的阻塞信号集
->         - oldset：备份（存储）修改之前的内核中阻塞信号集内容
->     - 返回值
->         - 成功：0
->         - 失败：-1，设置错误号，EFAULT 或 EINVAL
+> 	函数功能：获取内核中未决信号集，pending -> adj.未决定的
+> 	函数参数
+> 		- set：传出参数，保存的是内核中未决信号集中的信息
+> 	返回值
+> 		- 成功：0
+> 		- 失败：-1，设置错误号，EFAULT
 > */
-> 
 > int sigpending(sigset_t *set);
-> /*
->     - 函数功能：获取内核中未决信号集，pending -> adj.未决定的
->     - 函数参数
->         - set：传出参数，保存的是内核中未决信号集中的信息
->     - 返回值
->         - 成功：0
->         - 失败：-1，设置错误号，EFAULT
-> */
 > 
 > /*
 > 		使用例子：编写一个程序，把所有常规信号（1 ~ 31）的未决状态打印出来
@@ -2249,7 +2243,7 @@ int main(int argc, char* argv[]) {
 > }
 > ```
 
-#### 3.13.9 `sigaction()`系统调用
+### 3.13.9 `sigaction()`系统调用
 
 > `sigaction()`系统调用的主要功能是：**和`signal()`系统调用一样，进行信号捕捉，并且可以自定义捕捉到信号的行为**。
 >
@@ -2257,35 +2251,37 @@ int main(int argc, char* argv[]) {
 
 ```c
 #include <signal.h>
-int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);
+
 /*
-    函数功能：和 signal() 函数一样，进行信号捕捉，并且可以修改信号对应的行为
-    函数参数
-    - signum：捕捉到的信号编号，建议使用宏值来表示
+	函数功能：和 signal() 函数一样，进行信号捕捉，并且可以修改信号对应的行为
+	函数参数
+		- signum：捕捉到的信号编号，建议使用宏值来表示
     - act：捕捉到信号之后的处理动作
     - oldact：上一次对信号捕捉相关的设置，一般不使用，传递NULL
-    返回值
+	返回值
     - 成功：0
     - 失败：-1
+    
+  struct sigaction {
+    // 函数指针，指向的函数就是信号捕捉到之后的行为
+    void(*sa_handler)(int);
 
-    struct sigaction {
-        // 函数指针，指向的函数就是信号捕捉到之后的行为
-        void(*sa_handler)(int);
+    // 不常用
+    void(*sa_sigaction)(int, siginfo_t *, void *);
 
-        // 不常用
-        void(*sa_sigaction)(int, siginfo_t *, void *);
+    // 临时阻塞信号集，信号捕捉函数执行过程中，临时阻塞某些信号
+    sigset_t sa_mask;
 
-        // 临时阻塞信号集，信号捕捉函数执行过程中，临时阻塞某些信号
-        sigset_t sa_mask;
+    // 指定捕捉到的信号行为
+    // 值为 0，表示使用 sa_handler，值为 SA_SIGINFO 表示使用 sa_sigaction
+    int sa_flags;
 
-        // 指定捕捉到的信号行为
-        // 值为 0，表示使用 sa_handler，值为 SA_SIGINFO 表示使用 sa_sigaction
-        int sa_flags;
-
-        // 被废弃，不需要指定
-        void(*sa_restorer)(void);
-    };
+    // 被废弃，不需要指定
+    void(*sa_restorer)(void);
+  };
+  
 */
+int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);
 
 #include <sys/time.h>
 #include<stdio.h>
@@ -2336,7 +2332,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 3.13.10 `SIGCHLD`信号
+### 3.13.10 `SIGCHLD`信号
 
 > <font color = green>`SIGCHLD`信号产生的条件是</font>：**子进程的运行状态发生了三种变化之一，向父进程发送的信号**，这三种状态分别是
 >
@@ -2450,12 +2446,12 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 3.14 共享内存
+## 3.14 共享内存
 
 > - <font color = green>共享内存</font>允许两个或者多个进程**共享物理内存的同一块区域（通常被称为段）**。由于共享内存段是进程用户空间的一部分，因此这种 IPC 机制**无需内核介入**。所有需要做的就是，让一个进程将数据**复制进共享内存中**，并且这部分数据，对于其他共享同一个段的进程，也可以访问。
 > - 与管道等要求发送进程将数据从用户空间的缓冲区复制进内核内存，接收进程将数据从内核内存复制进用户空间的缓冲区这种做法相比，**内存共享这种 IPC 技术速度更快**。
 
-#### 3.14.1 共享内存操作命令
+### 3.14.1 共享内存操作命令
 
 > <font color = green>ipcs 用法</font>
 >
@@ -2477,7 +2473,7 @@ int main(int argc, char* argv[]) {
 > ipcrm -s semid 				# 移除用 semid 标识的信号
 > ```
 
-#### 3.14.2 共享内存使用步骤
+### 3.14.2 共享内存使用步骤
 
 > - 调用`shmget()`**创建**一个新的共享内存段，或者取得一个**既有共享内存段的标识符（其他进程创建的共享内存段）**。`shmget()`返回**共享内存的标识符**。
 > - 调用`shmat()`**关联共享内存段**，使共享内存段成为**该进程虚拟内存的一部分**。`shmat()`返回一个指针，指向**进程虚拟地址空间中，共享内存段的起始地址**。
@@ -2485,18 +2481,17 @@ int main(int argc, char* argv[]) {
 > - 调用`shmdt()`来**分离共享内存段**。分离共享内存段之后，**进程就无法再引用这块共享内存了**。这一步是可选，**因为进程终止时，会自动完成这一步**。
 > - 调用`shmctl()`来**删除共享内存段**。只有当所有与共享内存段关联的进程，**都与共享内存段分离完成**，`shmctl()`才会真正的删除共享内存段，释放内存资源。否则，`shmctl()`只是标记共享内存段，待后续删除。
 
-#### 3.14.3 共享内存系统调用
+### 3.14.3 共享内存系统调用
 
 > Linux 中，提供了**一系列共享内存相关的系统调用**。
 
 ```c
 #include <sys/ipc.h>
 #include <sys/shm.h>
-int shmget(key_t key, size_t size, int shmflg);
+
 /*
-    函数功能：创建一个新的共享内存段，或者获取一个既有的共享内存段的标识，
-    新创建内存段中的数据都会被初始化为0
-    函数参数
+	函数功能：创建一个新的共享内存段，或者获取一个既有的共享内存段的标识，新创建内存段中的数据都会被初始化为 0
+	函数参数
     - key：整型数据，通过 key 找到或者创建一个共享内存，一般使用16进制
     - size：共享内存的大小
     - shmflg：属性
@@ -2505,40 +2500,39 @@ int shmget(key_t key, size_t size, int shmflg);
             - 创建：IPC_CREATE
             - 判断共享内存是否存在：IPC_EXCL，需要和 IPC_CREATE 一起使用
             - IPC_EXCL | IPC_CREATE
-    返回值
+	返回值
     - 成功：>0，返回共享内存的引用ID，操作共享内存通过这个值
     - 失败：-1，设置错误号
 */
+int shmget(key_t key, size_t size, int shmflg);
 
-void *shmat(int shmid, const void *shmaddr, int shmflg);
 /*
-    函数功能：将共享内存和当前的进程进行关联
-    函数参数
+	函数功能：将共享内存和当前的进程进行关联
+	函数参数
     - shmid：共享内存的标识（ID），由 shmget 返回值获取
     - shmaddr：申请的共享内存起始地址，一般指定NULL，由内核决定
     - shmflg：对共享内存的操作
         - 读权限：SHM_RDONLY，必须要有读权限
         - 读写权限：0
-    返回值
+	返回值
     - 成功：返回共享内存的起始地址
     - 失败：返回(void*)-1，并且设置错误号
 */
+void *shmat(int shmid, const void *shmaddr, int shmflg);
 
-int shmdt(const void *shmaddr);
 /*
-		函数功能：解除当前进程和共享内存的关联
-		函数参数
+	函数功能：解除当前进程和共享内存的关联
+	函数参数
 		- shmaddr：共享内存的首地址
-		返回值
+	返回值
 		- 成功：返回0
     - 失败：返回-1，并且设置错误号
 */
+int shmdt(const void *shmaddr);
 
-int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 /*
-    函数功能：删除共享内存，共享内存要删除才会消失，创建共享内存的进程被销毁，
-    对共享内存没有任何影响
-    函数参数
+	函数功能：删除共享内存，共享内存要删除才会消失，创建共享内存的进程被销毁，对共享内存没有任何影响
+	函数参数
     - shmid：共享内存的ID
     - cmd：要做的操作
         - IPC_STAT：获取共享内存的当前状态
@@ -2549,98 +2543,101 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
         - cmd = IPC_STAT：传出参数，获取共享内存的属性信息
         - cmd = IPC_SET：设置共享内存中的属性信息到内核中
         - cmd = IPC_RMID：设置NULL
-
+	返回值
+		- 成功：返回0
+    - 失败：返回-1，并且设置错误号    
 */
+int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
-key_t ftok(const char* pathname, int proj_id);
 /*
-  	函数功能：根据指定的路径名和 int 值，生成一个共享内存的 key
-  	函数参数
+	函数功能：根据指定的路径名和 int 值，生成一个共享内存的 key
+	函数参数
   	- pathname：指定一个存在的路径
   	- proj_id：int类型的值，但是这个系统调用只会使用其中的 8bits
   		- 范围：0~255，一般指定一个字符'a'
-  	返回值
+	返回值
   	- 成功：返回生成的共享内存 key
   	- 失败：返回-1，并且设置错误号
 */
+key_t ftok(const char* pathname, int proj_id);
 ```
 
-#### 3.14.4 共享内存使用案例
+### 3.14.4 共享内存使用案例
 
-> <font color = green>创建两个进程</font>，一个进程向共享内存中写数据，另一个进程从共享内存中读数据。
->
-> ```c
-> /*
-> 	进程1：向共享内存中写数据
-> */
-> #include<sys/ipc.h>
-> #include<sys/shm.h>
-> #include<sys/types.h>
-> #include<stdio.h>
-> #include<string.h>
-> 
-> int main(int argc, char* argv[]) {
->     // 创建共享内存
->     int shm_id = shmget(100, 4096, IPC_CREAT | IPC_EXCL);
->     printf("write shm_id = %d\n", shm_id);
-> 
->     // 关联共享内存
->     void* shm_ptr = shmat(shm_id, NULL, 0);
-> 
->     // 向共享内存中写数据
->     char* buf = "hello world\n";
->     strcpy((char*)shm_ptr, buf);
-> 
->     printf("press any key to exit write process\n");
->     getchar();
-> 
->     // 解除关联
->     shmdt(shm_ptr);
-> 
->     // 删除共享内存
->     shmctl(shm_id, IPC_RMID, NULL);
-> 
->     return 0;
-> }
-> ```
->
-> ```c
-> /*
-> 	进程2：从共享内存中读数据
-> */
-> #include<sys/ipc.h>
-> #include<sys/shm.h>
-> #include<sys/types.h>
-> #include<stdio.h>
-> #include<string.h>
-> 
-> int main(int argc, char* argv[]) {
->     // 创建共享内存
->     int shm_id = shmget(100, 0, IPC_CREAT);
->     printf("read shm_id = %d\n", shm_id);
-> 
->     // 关联共享内存
->     void* shm_ptr = shmat(shm_id, NULL, 0);
-> 
->     // 读取共享内存中的信息
->     char buf[4096] = { '\0' };
->     strcpy(buf, (char*)shm_ptr);
->     printf("read shm: %s", buf);
-> 
->     printf("press any key to exit read process\n");
->     getchar();
-> 
->     // 解除关联
->     shmdt(shm_ptr);
-> 
->     // 删除共享内存
->     shmctl(shm_id, IPC_RMID, NULL);
-> 
->     return 0;
-> }
-> ```
+<font color = green>创建两个进程</font>，一个进程向共享内存中写数据，另一个进程从共享内存中读数据。
 
-#### 3.14.5 共享内存问题总结
+```c
+/*
+	进程1：向共享内存中写数据
+*/
+#include<sys/ipc.h>
+#include<sys/shm.h>
+#include<sys/types.h>
+#include<stdio.h>
+#include<string.h>
+
+int main(int argc, char* argv[]) {
+ // 创建共享内存
+ int shm_id = shmget(100, 4096, IPC_CREAT | IPC_EXCL);
+ printf("write shm_id = %d\n", shm_id);
+
+ // 关联共享内存
+ void* shm_ptr = shmat(shm_id, NULL, 0);
+
+ // 向共享内存中写数据
+ char* buf = "hello world\n";
+ strcpy((char*)shm_ptr, buf);
+
+ printf("press any key to exit write process\n");
+ getchar();
+
+ // 解除关联
+ shmdt(shm_ptr);
+
+ // 删除共享内存
+ shmctl(shm_id, IPC_RMID, NULL);
+
+ return 0;
+}
+```
+
+```c
+/*
+	进程2：从共享内存中读数据
+*/
+#include<sys/ipc.h>
+#include<sys/shm.h>
+#include<sys/types.h>
+#include<stdio.h>
+#include<string.h>
+
+int main(int argc, char* argv[]) {
+ // 创建共享内存
+ int shm_id = shmget(100, 0, IPC_CREAT);
+ printf("read shm_id = %d\n", shm_id);
+
+ // 关联共享内存
+ void* shm_ptr = shmat(shm_id, NULL, 0);
+
+ // 读取共享内存中的信息
+ char buf[4096] = { '\0' };
+ strcpy(buf, (char*)shm_ptr);
+ printf("read shm: %s", buf);
+
+ printf("press any key to exit read process\n");
+ getchar();
+
+ // 解除关联
+ shmdt(shm_ptr);
+
+ // 删除共享内存
+ shmctl(shm_id, IPC_RMID, NULL);
+
+ return 0;
+}
+```
+
+### 3.14.5 共享内存问题总结
 
 > <font color = green>问题1：</font>操作系统如何知道一块共享内存**被多少个进程关联**？
 >
@@ -2660,7 +2657,7 @@ key_t ftok(const char* pathname, int proj_id);
 > - 生命周期，**对于共享内存**，进程退出，会自动和共享内存取消关联，但是共享内存还在，**需要标记删除（只有共享内存的进程关联数为0时，才会删除）**，**对于内存映射**，进程退出，内存映射的生命周期也结束。
 >
 
-### 3.15 守护进程相关知识                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+## 3.15 守护进程相关知识                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 
 > 在介绍守护进程前，我们先提前了解一下**什么是终端、进程组、会话**。
 >
@@ -2686,8 +2683,9 @@ key_t ftok(const char* pathname, int proj_id);
 > <font color = green>进程组、会话和控制终端之间的关系</font>
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第三章 Linux多进程开发\3-30 进程组、会话、控制终端之间的关系1.png" width = "90%">
+>   <img src = "./images/第三章 Linux多进程开发/3-30 进程组、会话、控制终端之间的关系1.png" width = "90%">
 > </center>
+>
 >
 > <font color = green>进程组、会话操作函数</font>
 >
@@ -2713,59 +2711,59 @@ key_t ftok(const char* pathname, int proj_id);
 >   - 它在后台运行，并且**不拥有控制终端**。没有控制终端确保了**内核永远不会为守护进程，自动生成任何控制信号以及终端相关的信号（`SIGINT`, `SIGQUIT` etc）**。
 > - Linux 的**大多数服务器就是用守护进程实现的**。比如， Internet 服务器`inetd`， Web 服务器 `httpd`等。
 
-### 3.16 一些零零碎碎的基础知识
+## 3.16 一些零零碎碎的基础知识
 
-- `mv`命令，不仅**可以移动文件，还可以重命名文件**，重命名文件的原理是**将待移动的文件移动到当前目录下**。
-
-```bash
-# mv 待移动文件 文件目录/文件名
-```
-
-- `kill -9 pid`强制杀死进程号为`pid`的进程，僵尸进程除外。
-- `kill -l`查看系统定义的信号列表。
-- `ulimit`命令，Linux种的常用命令，主要用于**查询和设置系统对进程施加的各种资源限制**。
-
-```bash
-# -a：显示所有的资源限制。
-# -h：显示帮助信息。
-# -S：显示硬限制。
-# -H：显示软限制。
-# -s <value>：设置堆栈的最大大小。
-# -n <value>：设置最大打开文件描述符的数量。
-# -u <value>：设置可以创建的最大用户进程数。
-# -c <value>：设置core转储的最大大小（单位为512字节）。
-# -f <value>：设置单个文件的最大大小（单位为512字节）。
-# -t <value>：设置CPU时间（单位为秒）。
-# -v <value>：设置虚拟内存的最大大小（单位为千字节）。
-```
-
-- `./可执行文件名称 &`命令，将进程挂起到终端并且**后台运行**。
-- `fg`命令，将终端中后台运行的进程转换到**前台运行。**
-- `echo $$`命令，打印当前 Shell 进程的`PID。`
-- `tty`命令，显示当前终端设备的名称。
-
-- `lseek`系统调用，支持对应文件描述符的**随机访问。**
-
-```c
-/*
-		函数功能：移动对应文件描述符的读写位置，通过 lseek，可以在文件中任意位置进行读写，主要用于文件的随机访问
-		- 也可以指定参数，获取文件的长度(bytes)
-		函数参数
-		- fd：需要进行随机访问的文件描述符
-		- offset：偏移量
-		- whence：从哪个位置开始偏移
-			- SEEK_SET：文件开始位置
-			- SEEK_CUR：文件当前位置
-			- SEEK_END：文件末尾
-		返回值
-		- 成功：返回新的文件偏移量
-		- 失败：返回-1，并且设置错误号
-		
-		当 offset = 0，whence = SEEK_END 时，返回值是文件的长度
-*/
-#include <sys/types.h>
-#include <unistd.h>
-
-off_t lseek(int fd, off_t offset, int whence);
-```
-
+> - `mv`命令，不仅**可以移动文件，还可以重命名文件**，重命名文件的原理是**将待移动的文件移动到当前目录下**。
+>
+> ```bash
+> # mv 待移动文件 文件目录/文件名
+> ```
+>
+> - `kill -9 pid`强制杀死进程号为`pid`的进程，僵尸进程除外。
+> - `kill -l`查看系统定义的信号列表。
+> - `ulimit`命令，Linux种的常用命令，主要用于**查询和设置系统对进程施加的各种资源限制**。
+>
+> ```bash
+> # -a：显示所有的资源限制。
+> # -h：显示帮助信息。
+> # -S：显示硬限制。
+> # -H：显示软限制。
+> # -s <value>：设置堆栈的最大大小。
+> # -n <value>：设置最大打开文件描述符的数量。
+> # -u <value>：设置可以创建的最大用户进程数。
+> # -c <value>：设置core转储的最大大小（单位为512字节）。
+> # -f <value>：设置单个文件的最大大小（单位为512字节）。
+> # -t <value>：设置CPU时间（单位为秒）。
+> # -v <value>：设置虚拟内存的最大大小（单位为千字节）。
+> ```
+>
+> - `./可执行文件名称 &`命令，将进程挂起到终端并且**后台运行**。
+> - `fg`命令，将终端中后台运行的进程转换到**前台运行。**
+> - `echo $$`命令，打印当前 Shell 进程的`PID。`
+> - `tty`命令，显示当前终端设备的名称。
+>
+> - `lseek`系统调用，支持对应文件描述符的**随机访问。**
+>
+> ```c
+> #include <sys/types.h>
+> #include <unistd.h>
+> 
+> /*
+> 		函数功能：移动对应文件描述符的读写位置，通过 lseek，可以在文件中任意位置进行读写，主要用于文件的随机访问
+> 		- 也可以指定参数，获取文件的长度(bytes)
+> 		函数参数
+> 		- fd：需要进行随机访问的文件描述符
+> 		- offset：偏移量
+> 		- whence：从哪个位置开始偏移
+> 			- SEEK_SET：文件开始位置
+> 			- SEEK_CUR：文件当前位置
+> 			- SEEK_END：文件末尾
+> 		返回值
+> 		- 成功：返回新的文件偏移量
+> 		- 失败：返回-1，并且设置错误号
+> 		
+> 		当 offset = 0，whence = SEEK_END 时，返回值是文件的长度
+> */
+> off_t lseek(int fd, off_t offset, int whence);
+> ```
+>
