@@ -1,13 +1,15 @@
+[TOC]
+
 # 第四章 Linux多线程开发
 
-### 4.1 线程概述
+## 4.1 线程概述
 
 > - 与进程类似，线程是**允许应用程序并发执行多个任务的一种机制**。一个进程可以包含多个线程，同一个程序中的所有线程**均会独立执行相同程序**，且共享同一份全局内存区域，其中包括**初始化数据段、未初始化数据段，以及堆内存段（传统意义上的 UNIX 进程只是多线程程序的一个特例，该进程只包含一个线程）**。
 > - 进程是 OS 资源分配的最小单位，线程是 OS 调度执行的最小单位。
 > - **线程是轻量级的进程（Light Weight Process, LWP）**，在 Linux 环境下，线程的本质仍是进程。
 > - 查看指定进程的 LWP 号：`ps -Lf pid`
 
-#### 4.1.1 线程和进程的区别
+### 4.1.1 线程和进程的区别
 
 > - 进程间的信息难以共享，由于除去只读代码段外，**父子进程并未共享内存**，因此**必须采用一些进程间通信方式**，在进程间进行信息交换。（第三章中，介绍了匿名管道、有名管道、内存映射和内存共享四种进程间通信方式）。
 > - 调用`fork()`来创建进程的代价**相对较高**，即便利用读时共享、写时拷贝技术，仍然需要复制**诸如内存页表和文件描述符表之类的多种进程属性**。这意味着`fork()`调用在时间上的开销依然不菲。
@@ -19,7 +21,7 @@
 >   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第四章 Linux多线程开发\4-1 线程和进程虚拟地址空间.png" width = "90%">
 > </center>
 
-#### 4.1.2 线程之间共享和非共享资源
+### 4.1.2 线程之间共享和非共享资源
 
 > <font color= green>共享资源</font>
 >
@@ -40,14 +42,14 @@
 > - 实时调度策略和优先级
 > - 栈，本地变量和函数的调用链接信息
 
-### 4.2 NPTL
+## 4.2 NPTL
 
 > - 当 Linux 最初开发时，在内核中并不能真正支持线程。但是可以通过 `clone()` 系统调用**将进程作为可调度的实体**。`clone()` 系统调用创建了调用进程（calling process）的一个拷贝，这个拷贝与调用进程共享相同的地址空间。`LinuxThreads` 项目使用的就是 `clone()` 系统调用，**在用户空间下模拟对线程的支持**。不幸的是，这种方法有一些缺点，尤其是在信号处理、调度和进程间同步等方面都存在问题。另外，这个线程模型也不符合 POSIX 的要求。
 > - 要改进 `LinuxThreads`，需要内核的支持，并且重写线程库。这项工作由 Red Hat 的开发人员，开展的 <font color = green>NPTL</font> 项目完成。
 > - <font color = green>NPTL</font>，全称为 Native POSIX Thread Library，是 Linux 线程的一个新实现，它克服了 `LinuxThreads` 的缺点，同时也符合 POSIX 的需求。与 `LinuxThreads` 相比，它在性能和稳定性方面都提供了重大的改进。
 > - 查看当前 `pthread` 库版本：`getconf GNU_LIBPTHREAD_VERSION`
 
-### 4.3 线程相关函数
+## 4.3 线程相关函数
 
 > <font color = green>线程相关函数如下</font>
 >
@@ -68,7 +70,7 @@
 > */
 > ```
 
-#### 4.3.1 `pthread_self(void)`和`pthread_equal()`
+### 4.3.1 `pthread_self(void)`和`pthread_equal()`
 
 ```c
 /*
@@ -88,7 +90,7 @@
 */
 ```
 
-#### 4.3.2 使用`pthread_create()`系统调用创建子线程
+### 4.3.2 使用`pthread_create()`系统调用创建子线程
 
 ```c
 /*
@@ -144,7 +146,7 @@ int main() {
 }
 ```
 
-#### 4.3.3 使用`pthread_exit()`终止一个线程的运行
+### 4.3.3 使用`pthread_exit()`终止一个线程的运行
 
 ```c
 /*
@@ -189,7 +191,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 4.3.4 使用`pthread_join()`和一个已经终止的线程进行连接
+### 4.3.4 使用`pthread_join()`和一个已经终止的线程进行连接
 
 ```c
 /*
@@ -260,7 +262,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 4.3.5 使用`pthread_detach()`进行线程分离
+### 4.3.5 使用`pthread_detach()`进行线程分离
 
 ```c
 /*
@@ -324,7 +326,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 4.3.6 使用`pthread_cancel()`取消线程，让线程终止运行
+### 4.3.6 使用`pthread_cancel()`取消线程，让线程终止运行
 
 ```c
 /*
@@ -379,21 +381,21 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 4.4 线程属性相关函数
+## 4.4 线程属性相关函数
 
-> <font color= green>线程属性相关函数如下</font>
->
-> ```c
-> #include <pthread.h>
-> // 线程属性类型：pthread_attr_t 
-> int pthread_attr_init(pthread_attr_t *attr);
-> int pthread_attr_destroy(pthread_attr_t *attr);
-> int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate);
-> int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate);
-> // ...还有很多，这里只举例部分 API
-> ```
+线程属性相关函数如下：
 
-#### 4.4.1 线程属性相关函数解析
+```c
+#include <pthread.h>
+// 线程属性类型：pthread_attr_t 
+int pthread_attr_init(pthread_attr_t *attr);
+int pthread_attr_destroy(pthread_attr_t *attr);
+int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate);
+int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate);
+// ...还有很多，这里只举例部分 API
+```
+
+### 4.4.1 线程属性相关函数解析
 
 ```c
 #include <pthread.h>
@@ -440,7 +442,7 @@ int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate);
 int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate);
 ```
 
-#### 4.4.2 线程属性相关函数使用案例
+### 4.4.2 线程属性相关函数使用案例
 
 ```c
 #include<stdio.h>
@@ -506,7 +508,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 4.5 线程同步机制
+## 4.5 线程同步机制
 
 > 线程的主要优势在于，**能够通过全局变量来共享信息**。不过，<font color = green>这种便捷的共享是有代价的</font>：
 >
@@ -526,20 +528,20 @@ int main(int argc, char* argv[]) {
 >   - 条件变量
 >   - 信号量
 
-### 4.6 互斥量
+## 4.6 互斥量
 
-> 在 UNIX 内核中，使用了**互斥量机制解决线程同步问题**。
->
+在 UNIX 内核中，使用了**互斥量机制解决线程同步问题**。
+
 > <font color = green>互斥量</font>
 >
 > - 为避免线程更新共享变量时出现问题，可以使用**互斥量（mutex 是 mutual exclusion 的缩写）**来确保**同时只有一个线程可以访问某项共享资源**。同时，也可以使用互斥量来保证对任意共享资源的原子访问。
-> - 互斥量有两种状态：**已锁定（locked）和未锁定（unlocked）**。任何时候，**至多只有一个线程可以锁定该互斥量**。试图对已经锁定的某一互斥量再次加锁，**会阻塞线程或者报错失败**，具体取决于加锁时使用的方法。
+>- 互斥量有两种状态：**已锁定（locked）和未锁定（unlocked）**。任何时候，**至多只有一个线程可以锁定该互斥量**。试图对已经锁定的某一互斥量再次加锁，**会阻塞线程或者报错失败**，具体取决于加锁时使用的方法。
 > - 一旦线程锁定互斥量，就成为了**该互斥量的所有者**，只有互斥量所有者**才能给互斥量解锁**。一般情况下，对每一个共享资源（可能由多个相关变量组成），**会分别使用不同的互斥量**，每一个线程在访问同一共享资源的时候，**将采用如下协议**：
 >   - 针对共享资源锁定互斥量
 >   - 访问共享资源
 >   - 对互斥量解锁
 
-#### 4.6.1 互斥量相关函数
+### 4.6.1 互斥量相关函数
 
 ```c
 #include<pthread.h>
@@ -609,7 +611,7 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 ```
 
-#### 4.6.2 互斥量实现多窗口售票（线程同步问题）
+### 4.6.2 互斥量实现多窗口售票（线程同步问题）
 
 > 首先，我们要知道多窗口售票的**基本需求**
 >
@@ -694,7 +696,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 4.7 死锁
+## 4.7 死锁
 
 > <font color = green>死锁的概念</font>，是在**多线程访问多个共享资源，而多个共享资源需要多个互斥量**的前提下定义的。
 >
@@ -705,7 +707,7 @@ int main(int argc, char* argv[]) {
 >   - 重复加锁
 >   - 多线程多锁，抢占锁资源
 
-#### 4.7.1 死锁案例
+### 4.7.1 死锁案例
 
 > 从上述对死锁的介绍，死锁出现有三种情况
 >
@@ -810,7 +812,7 @@ int main(int argc, char* argv[]) {
 >
 > 两个阻塞的子线程，若无外力作用，都将无法执行后续的逻辑代码。
 
-### 4.8 读写锁
+## 4.8 读写锁
 
 > - 当一个线程已经持有互斥锁时，**互斥锁将所有试图进入临界区（共享资源）的线程都阻塞**。考虑一种情形，当前持有互斥锁的线程只是要读访问共享资源，而同时有其它几个线程也想读这个共享资源，**但是由于互斥锁的排他性，所有其它线程都无法获取锁，也就无法读访问共享资源了**。实际上，**多个线程同时读访问共享资源并不会导致问题**。
 > - 对数据的读写操作中，**更多的是读操作**，写操作较少，例如对数据库的读写应用。为了满足**多线程可以同时读共享资源（不互斥），但只允许一个线程写共享资源（互斥）**，UNIX 提供了读写锁来实现。
@@ -819,7 +821,7 @@ int main(int argc, char* argv[]) {
 >   - 如果有其它线程**写共享资源**，则其它线程**不允许读、写操作**。
 >   - 写是独占的（原子性，不允许中断），**写的优先级高**。
 
-#### 4.8.1 读写锁相关函数
+### 4.8.1 读写锁相关函数
 
 ```c
 #include <pthread.h>
@@ -901,7 +903,7 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock);
 int pthread_rwlock_unlock(pthread_rwlock_t *rwlock);
 ```
 
-#### 4.8.2 读写锁案例
+### 4.8.2 读写锁案例
 
 > <font color = green>读写锁案例</font>：创建八个线程，操作同一个全局变量（共享资源）。
 >
@@ -983,7 +985,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 4.9 生产者消费者模型
+## 4.9 生产者消费者模型
 
 > **使用互斥量**，实现**粗略版**的生产者消费者模型
 >
@@ -1087,7 +1089,7 @@ int main() {
 }
 ```
 
-### 4.10 条件变量
+## 4.10 条件变量
 
 > 在 4.8 节中实现的生产者消费者模型，<font color = green>存在一定的问题</font>：
 >
@@ -1097,7 +1099,7 @@ int main() {
 >
 > -  **条件变量不是锁**，主要用途是**基于条件阻塞和唤醒**线程，结合互斥量使用。
 
-#### 4.10.1 条件变量相关函数
+### 4.10.1 条件变量相关函数
 
 ```c
 // 条件变量的类型：pthread_cond_t
@@ -1167,7 +1169,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 int pthread_cond_destroy(pthread_cond_t *cond);
 ```
 
-#### 4.10.2 基于条件变量，优化生产者消费者模型
+### 4.10.2 基于条件变量，优化生产者消费者模型
 
 ```c
 #include<stdio.h>
@@ -1282,7 +1284,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### 4.11 信号量
+## 4.11 信号量
 
 > 在 OS 中，信号量机制也是实现线程同步的一种方式，与互斥量不同的是，**信号量可以管理多个线程间，同步访问多个共享资源**。而互斥量，**是管理多个线程间，同步访问一个共享资源**。
 >
@@ -1297,7 +1299,7 @@ int main(int argc, char* argv[]) {
 > - 线程**访问共享资源**，信号量的值 $sem$  **减 1**。
 > - 线程**释放共享资源**，信号量的值 $sem$ **加 1**。
 
-#### 4.11.1 信号量相关函数
+### 4.11.1 信号量相关函数
 
 > UNIX OS 中，提供了**信号量相关的操作函数**
 
@@ -1383,7 +1385,7 @@ int sem_getvalue(sem_t *sem, int *sval);
 int sem_destroy(sem_t *sem);
 ```
 
-#### 4.11.2 信号量实现生产者消费者模型
+### 4.11.2 信号量实现生产者消费者模型
 
 ```c
 #include<stdio.h>
@@ -1508,16 +1510,16 @@ int main() {
 
 
 
-### 4.12 一些小的知识点补充
+## 4.12 一些小的知识点补充
 
-#### 4.12.1 关于 Linux 开发环境问题
+### 4.12.1 关于 Linux 开发环境问题
 
 > 在`VSCode`的linux开发环境下，进行**进程、多线程开发的时候**，一些系统调用或者定义比如`mq_timedsend()`，`pthread_rwlock_t`等，编辑器无法解析出来，**经常会出现无法跳转函数定义、飘红等**，除了没有 include 相关的头文件之外，很可能是没有进行宏定义导致的 `VSCode` 解析器无法识别，解决方案如下：
 >
 > - 打开 `c_cpp_properties.json` 文件，在 `"defines"` 字段中加入 `_POSIX_C_SOURCE=200809L`。
 >
 
-#### 4.12.2 关于 Linux 开发程序错误问题
+### 4.12.2 关于 Linux 开发程序错误问题
 
 > 在`Linux`中，**运行可执行文件出现的错误**，可以通过如下指令，查看错误的**详细信息**，主要原理是**基于`core`文件和`gdb`调试工具**。
 >
@@ -1537,6 +1539,4 @@ int main() {
 > #生成相应的详细错误信息
 > ```
 >
-
-
 
