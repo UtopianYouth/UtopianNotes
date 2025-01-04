@@ -18,7 +18,7 @@
 > - 线程和进程的虚拟地址空间区别，如下图所示，**是三个进程的虚拟地址空间**，对于每一个进程中的线程，都是共享一个进程的虚拟地址空间。同一进程的不同的线程，都有自己的栈空间和`.text`段（代码段）。
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第四章 Linux多线程开发\4-1 线程和进程虚拟地址空间.png" width = "90%">
+>   <img src = "./images/第四章 Linux多线程开发/4-1 线程和进程虚拟地址空间.png" width = "90%">
 > </center>
 
 ### 4.1.2 线程之间共享和非共享资源
@@ -804,8 +804,9 @@ int main(int argc, char* argv[]) {
 > 上述程序，就是**多线程多锁，抢占锁资源的情况**，如下图：
 >
 > <center>
->   <img src = "D:\Notes\CppStudy\images\Linux网络编程与实战\第四章 Linux多线程开发\4-10 死锁1.png" width = "70%">
+>   <img src = "./images/第四章 Linux多线程开发/4-10 死锁1.png" width = "70%">
 > </center>
+>
 >
 > - 对于子线程 A 拿到了 `mutex1` 锁，而当想要再次去拿 `mutex2` 锁的时候，**`mutex2` 锁已经被子线程 B 拿到**，所以子线程 A 被阻塞。
 > - 同理，对于子线程 B 拿到了 `mutex2` 锁，而当想要再次去拿 `mutex1` 锁的时候，**`mutex2` 锁已经被子线程 A 拿到**，所以子线程 B 也被阻塞。
@@ -1461,9 +1462,6 @@ void* consumer(void* arg) {
     }
     return NULL;
 }
-
-
-
 
 int main() {
 
