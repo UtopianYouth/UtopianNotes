@@ -264,9 +264,6 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
-
-
-
 ```
 
 ## 3.7 进程控制（孤儿进程、僵尸进程、进程退出）
@@ -1669,7 +1666,7 @@ int main(int argc, char* argv[]) {
 | 12      | `SIGUSR2`                          | 另外一个用户自定义信号，程序员可以在程序中定义并使用该信号   | 终止进程                   |
 | 13      | <font color = red>`SIGPIPE`</font> | Broken pipe 向一个没有读端的管道写数据                       | 终止进程                   |
 | 14      | `SIGALRM`                          | 定时器超时，超时的时间由系统调用 alarm 设置                  | 终止进程                   |
-| 15      | `SIGTERM`                          | 程序结束信号，与 `SIGKILL` 不同的是，该信号可以被阻塞和终止。通常用来要求程序正常退出。执行 shell 命令 kill 时，缺省产生这个信号 | 终止进程                   |
+| 15      | <font color = red>`SIGTERM`</font> | 程序结束信号，与 `SIGKILL` 不同的是，该信号可以被阻塞和终止。通常用来要求程序正常退出。执行 shell 命令 kill 时，缺省产生这个信号 | 终止进程                   |
 | 16      | `SIGSTKFLT`                        | Linux早期版本出现的信号，现仍保留向后兼容                    | 终止进程                   |
 | 17      | <font color = red>`SIGCHLD`</font> | 子进程结束时，父进程会收到这个信号                           | 忽略这个信号               |
 | 18      | <font color = red>`SIGCONT`</font> | 如果进程已停止，则使其继续运行                               | 继续 / 忽略                |
@@ -1687,6 +1684,11 @@ int main(int argc, char* argv[]) {
 | 30      | `SIGPWR`                           | 关机                                                         | 终止进程                   |
 | 31      | `SIGSYS`                           | 无效的系统调用                                               | 终止进程并产生 core 文件   |
 | 34 ~ 64 | `SIGRTMIN` ~ `SIGRTMAX`            | LINUX 的实时信号，它们没有固定的含义（可以由用户自定义）     | 终止进程                   |
+
+> <font color= red>注意：</font>向进程发送编号为 0 的信号，可以
+>
+> - **检查进程是否存在**：使用 `int ret = kill(pid, 0);` 函数实现，如果 `ret == -1` 表示进程不存在，否则，进程号为 `pid` 的进程存在；
+> - **权限检查**：确定当前进程是否有权限影响目标进程。
 
 ### 3.13.2 信号的 5 种默认处理动作
 
@@ -1754,7 +1756,6 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
-
 ```
 
 - `raise()`系统调用
