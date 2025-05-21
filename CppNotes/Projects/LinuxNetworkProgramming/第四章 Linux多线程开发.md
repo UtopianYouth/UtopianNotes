@@ -1516,6 +1516,9 @@ int main() {
 >
 > - 打开 `c_cpp_properties.json` 文件，在 `"defines"` 字段中加入 `_POSIX_C_SOURCE=200809L`。
 >
+> `c_cpp_properties.json` 打开方式
+>
+> - 前提是在`VSCode`中安装了 `C/C++` 插件，使用 `Ctrl + Shift + P` 搜索 `C/C++: Edit Configuration(UI)`即可。
 
 ### 4.12.2 关于 Linux 开发程序错误问题
 

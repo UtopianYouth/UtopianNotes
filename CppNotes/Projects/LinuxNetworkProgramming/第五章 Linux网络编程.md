@@ -1427,8 +1427,8 @@ int shutdown(int sockfd, int how);
 
 端口复用最常用的用途是：
 
-> - 防止服务器重启时之前绑定的端口还未释放。
-> - 程序突然退出而系统没有释放端口
+> - 防止服务器重启时之前绑定的端口还未释放；
+> - 程序突然退出而系统没有释放端口。
 >
 
 ```c
@@ -1460,7 +1460,7 @@ int getsockopt(int sockfd, int level, int optname, void *optval, socklen_t *optl
         - SO_REUSEADDR：地址复用
         - SO_REUSEPORT：端口复用
     - optval：optname 取值所在的地址（optname，有些取值是 int 类型，有些是特定的结构体类型）
-        - 当 optname 是 SO_REUSEPORT时
+        - 当 optname 是 SO_REUSEPORT 时
             - *optval = 1：表示可以端口复用
             - *optval = 0：表示不可以端口复用
     - optlen：optval 参数的大小
@@ -1526,7 +1526,6 @@ NIO 模型和 BIO 模型本质的区别是，NIO 模型是非阻塞的，该模�
 <center>
   <img src = "./images/第五章 Linux网络编程/5-25 网络通信NIO模型.png">
 </center>
-
 4.<font color = red>I/O 多路转接技术</font>
 
 I/O 多路转接技术的基本原理是**委托内核监听文件描述符的缓冲区，只有文件描述符的缓冲区有 I/O 操作时，程序才会处理对应的缓冲区**，和 NIO 不同的是，I/O 多路转接技术是阻塞的，节省了不必要的系统资源浪费。
@@ -1748,13 +1747,12 @@ int main() {
 > <center>
 >   <img src = "./images/第五章 Linux网络编程/5-28 select的IO多路复用技术缺点.png">
 > </center>
->
-> **poll 多路复用是对 select 多路复用的一个改进，其中，改进的点如下：**
->
-> - poll 多路复用文件描述符集合的**大小可以自定义**。
+>**poll 多路复用是对 select 多路复用的一个改进，其中，改进的点如下：**
+> 
+>- poll 多路复用文件描述符集合的**大小可以自定义**。
 > - poll 多路复用文件描述符集合**可以重用**。
->
-> 综上，poll 多路复用解决了 select 多路复用的 3 和 4 两个缺点。
+> 
+>综上，poll 多路复用解决了 select 多路复用的 3 和 4 两个缺点。
 
 <font color = green>poll 多路复用系统调用相关函数</font>
 

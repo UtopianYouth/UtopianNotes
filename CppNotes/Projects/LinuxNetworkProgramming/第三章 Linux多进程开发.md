@@ -429,12 +429,12 @@ int main(int argc, char* argv[]) {
 >     	- pid < -1: 回收pgid = |pid|的所有子进程资源，限制了进程组范围
 > 		- wstatus，进程退出时的状态信息
 >     - int options，设置父进程阻塞和非阻塞
->     - 0: 阻塞
->     - WNOHANG : 非阻塞（如果不存在结束的子进程，waitpid()函数立即返回），常用，是和 wait() 的主要区别
+>       - 0: 阻塞
+>       - WNOHANG : 非阻塞（如果不存在结束的子进程，waitpid()函数立即返回），常用，是和 wait() 的主要区别
 >     返回值
->     - >0：返回回收资源的子进程pid
->     - 0: 如果 options = WNOHANG, 表示还有子进程没有运行结束
->     - -1：所有子进程都结束了且没有可以回收的子进程资源，或者是调用函数失败
+>       - >0：返回回收资源的子进程pid
+>       - 0: 如果 options = WNOHANG, 表示还有子进程没有运行结束
+>       - -1：所有子进程都结束了且没有可以回收的子进程资源，或者是调用函数失败
 > 
 >     与 wait() 函数不同的是，waitpid() 在等待子进程结束之前，可以设置非阻塞，提高了父进程的执行效率，并且，可以指定回收进程组的进程
 >     - 与 wait() 函数一样，waitpid() 调用一次，只能回收一个子进程资源
@@ -1666,7 +1666,7 @@ int main(int argc, char* argv[]) {
 | 12      | `SIGUSR2`                          | 另外一个用户自定义信号，程序员可以在程序中定义并使用该信号   | 终止进程                   |
 | 13      | <font color = red>`SIGPIPE`</font> | Broken pipe 向一个没有读端的管道写数据                       | 终止进程                   |
 | 14      | `SIGALRM`                          | 定时器超时，超时的时间由系统调用 alarm 设置                  | 终止进程                   |
-| 15      | <font color = red>`SIGTERM`</font> | 程序结束信号，与 `SIGKILL` 不同的是，该信号可以被阻塞和终止。通常用来要求程序正常退出。执行 shell 命令 kill 时，缺省产生这个信号 | 终止进程                   |
+| 15      | <font color = red>`SIGTERM`</font> | 程序结束信号，与 `SIGKILL` 不同的是，该信号可以被阻塞和终止。通常用来要求程序正常退出，执行 shell 命令 kill 时，缺省产生这个信号 | 终止进程                   |
 | 16      | `SIGSTKFLT`                        | Linux早期版本出现的信号，现仍保留向后兼容                    | 终止进程                   |
 | 17      | <font color = red>`SIGCHLD`</font> | 子进程结束时，父进程会收到这个信号                           | 忽略这个信号               |
 | 18      | <font color = red>`SIGCONT`</font> | 如果进程已停止，则使其继续运行                               | 继续 / 忽略                |
