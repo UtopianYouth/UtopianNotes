@@ -48,11 +48,75 @@
 
 
 
+**问题11：**了解什么是函数代理吗？
+
+
+
+**问题12：**知道 c++ 的智能指针吗，对于智能指针  `shared_ptr<T>` 是线程安全的吗，如果不是，为什么？
+
+
+
 ## **手撕题目**
 
 三个线程依次打印 1~100 的数字（如此简单的题目，但却由于 API 的调用问题，卡住并且不会了）。
 
+```c++
+#include<iostream>
+#include<thread>
+#include<mutex>
+#include<condition_variable>
+#include<vector>
 
+using namespace std;
+
+mutex mtx;
+condition_variable cv;
+int num = 1;
+const int MAX_NUM = 100;
+int cur_thread_id = 0;     // 轮换线程
+
+void function(int thread_id) {
+    while (1) {
+        // 互斥锁，unique_lock 属于 RAII 资源，当前作用域执行完自动释放
+        unique_lock<mutex> lock(mtx);
+        // 条件变量，获得互斥锁的线程，会执行条件变量检查函数，当条件变量检查函数返回true时，阻塞解除
+        cv.wait(lock, [thread_id]()->bool {
+            return (num > MAX_NUM) || (cur_thread_id == thread_id);
+            });
+
+        if (num > MAX_NUM) {
+            cv.notify_all();    // 通知所有线程退出，执行wait()函数
+            break;
+        }
+
+        cout << "Thread id " << thread_id << ": " << num++ << endl;
+        cur_thread_id = (cur_thread_id + 1) % 3;
+        cv.notify_all();
+    }
+}
+
+int main() {
+    const int nums = 3;
+    vector<thread> threads;
+
+    for (int i = 0;i < nums;++i) {
+        threads.emplace_back(function, i);
+    }
+
+    for (auto& thread : threads) {
+        thread.join();      // 等待所有子线程结束
+    }
+  
+    system("pause");
+    return 0;
+}
+```
+
+线程池
+
+```c++
+
+```
 
 ## 反问环节
 
