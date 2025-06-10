@@ -1178,7 +1178,7 @@ void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
   - 函数参数
   	- addr: 创建文件或设备内存映射的地址，一般程序员不好指定，赋值为NULL，由内核决定
     - length: 要映射数据的长度（一般为页的整数倍，大于等于文件长度）
-    	- 获取文件的长度API: stat(), lseek()
+    	- 获取文件长度的API: stat(), lseek()
     	- 可以使用`getconf PAGE_SIZE`或者`ulimit -a`查看 OS 的页大小
     - prot: 内存映射保护的权限（操作的权限，不能和打开的文件权限有冲突）
     	- PROT_NONE: 没有权限
@@ -1255,7 +1255,7 @@ int munmap(void *addr, size_t length);
 > exit(0);
 > }
 > 
-> // 2. 创建内存映射区
+> // 2. 创建内存映射区，会失败，返回MAP_FAILED
 > int length = lseek(fd, 0, SEEK_END);
 > void* ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 > ```
@@ -1265,8 +1265,8 @@ int munmap(void *addr, size_t length);
 > ```c++
 > /*
 > 		创建内存映射区
-> 		偏移量 length 是以 byte 为单位的，必须是 OS 页大小 4k 的整数倍，
-> 		如果不是，返回MAP_FAILED
+> 		- 偏移量 length 是以 byte 为单位的，必须是 OS 页大小 4k 的整数倍
+> 		- 如果不是，返回MAP_FAILED
 > */
 > int length = lseek(fd, 0, SEEK_END);
 > void* ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -1335,8 +1335,7 @@ int munmap(void *addr, size_t length);
 /*
 		案例1：内存映射实现父子进程通信
 		- 第一步：内存映射需要磁盘文件映射到内存中，所以要先有一个磁盘文件，
-		可以使用`touch test_mmap.txt`创建磁盘文件，并且向磁盘文件中写入内容，保证
-		其非空。
+		可以使用`touch test_mmap.txt`创建磁盘文件，并且向磁盘文件中写入内容，保证其非空。
 		- 第二步：打开非空的磁盘文件，获得文件描述符
 		- 第三步：在创建子进程之前，创建内存映射区，该内存映射区父子进程共享
 		- 第四步：创建子进程

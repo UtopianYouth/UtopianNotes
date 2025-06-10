@@ -1849,4 +1849,36 @@ int main() {
 
 #### [KamaCoder 47](https://kamacoder.com/problempage.php?pid=1047)：参加科学大会
 
+# 第十二章 Hot100补充
 
+## 12.1 哈希
+
+### [LC 1](https://leetcode.cn/problems/two-sum/?envType=study-plan-v2&envId=top-100-liked)：两数之和
+
+> 暴力法：时间复杂度 O(n^2)，每一次遍历到当前元素都去寻找其它元素是否能拼凑成 target；
+>
+> 哈希法：时间复杂度 O(n)，本质思路还是和暴力法一样，只是借助哈希表的查找为O(1)，所以时间复杂度降了，但是空间复杂度变高了。
+
+### [LC 49](https://leetcode.cn/problems/group-anagrams/description/?envType=study-plan-v2&envId=top-100-liked)：字母异位词
+
+用到了哈希，但是感觉还是暴力法，本质就是通过对每一个单词进行字典序的排序，将排序的结果作为构建哈希的键值，将单词字典序排序的结果为判断，结果相同的分到同一个字符串数组中。
+
+### [LC 128](https://leetcode.cn/problems/longest-consecutive-sequence/description/?envType=study-plan-v2&envId=top-100-liked)：最长连续序列
+
+> 第一时间想到暴力法，排序然后找最长子序列，但是时间复杂度为 O(n*logn)，不符合题目要求；
+>
+> 优化：借助哈希表存储数组的值，然后遍历哈希表，因为哈希表的查找为O(1)，所以时间复杂度降为O(n)了，具体如下：
+>
+> - 遍历哈希表，当前值为 num
+>   - 如果不能在哈希表找到 num-1 的值，说明肯定不是最长连续序列，不做操作；
+>   - 如果能在哈希表找到 num-1 的值，说明当前 num 可能是最长连续序列的开始位置，往后遍历，求出以 num 为起始位置的最长连续序列即可；
+>
+> 分析优化后算法的时间复杂度，连续的数字部分被访问了2次，其它的数字被访问了1次，整体的时间复杂度为 O(n)，空间复杂度为 O(n)。
+>
+> 需要注意题目的数字去重即可，不过 unordered_set 自动对数字进行了去重。
+
+## 12.2 双指针
+
+### [LC 283](https://leetcode.cn/problems/move-zeroes/description/?envType=study-plan-v2&envId=top-100-liked)：移动零
+
+### [LC 42](https://leetcode.cn/problems/trapping-rain-water/description/?envType=study-plan-v2&envId=top-100-liked)：接雨水
