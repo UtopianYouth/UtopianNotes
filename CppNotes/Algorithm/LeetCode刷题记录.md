@@ -1240,7 +1240,7 @@ void Demo06() {
 >
 > - 如果时间间隔不够插入其它的所有任务，返回数组的长度即可
 >
-> 需要注意出现次数最多的任务可能有多种。（😄😄）
+> 需要注意出现次数最多的任务可能有多种（😄😄）。
 
 ### [LC 435](https://leetcode.cn/problems/non-overlapping-intervals/description/)：无重叠区间
 
@@ -1885,3 +1885,36 @@ int main() {
 ### [LC 283](https://leetcode.cn/problems/move-zeroes/description/?envType=study-plan-v2&envId=top-100-liked)：移动零
 
 ### [LC 42](https://leetcode.cn/problems/trapping-rain-water/description/?envType=study-plan-v2&envId=top-100-liked)：接雨水
+
+
+
+# 第十三章 基本算法补充
+
+## 快排模板
+
+```c++
+//快速排序模板
+void quickSort(int arr[100], int begin, int end) {
+    if (begin >= end) {
+        return;
+    }
+    int tmp = arr[begin];
+    int i = begin, j = end;
+
+    while (i < j) {
+        while (arr[j] >= tmp && i < j) {
+            --j;
+        }
+        arr[i] = arr[j];    //找到第一个比基准小的元素 
+        while (arr[i] <= tmp && i < j) {
+            ++i;
+        }
+        arr[j] = arr[i];
+    }
+    //也可以是arr[i]，因为循环最后跳出来 i == j
+    arr[j] = tmp;
+    quickSort(arr, begin, j - 1);
+    quickSort(arr, j + 1, end);
+}
+```
+

@@ -1,3 +1,5 @@
+# Git 入门
+
 ## 一、`Git`基础
 
 #### 1.1 常用命令
@@ -31,9 +33,9 @@ git reflog	# 记录每一次 git commit（对于不小心的版本回退操作�
 #### 1.4 撤销修改
 
 ```bash
-git checkout -- filename  # 撤销工作区修改的文件内容
+git checkout -- filename  	# 撤销工作区修改的文件内容
 git reset HEAD filename		# 可以把暂存区的修改撤销掉，重新放回工作区
-git reset --hard HEAD			# 如果修改提交到了本地仓库，直接用版本回退的功能即可
+git reset --hard HEAD		# 如果修改提交到了本地仓库，直接用版本回退的功能即可
 ```
 
 #### 1.5 删除文件
