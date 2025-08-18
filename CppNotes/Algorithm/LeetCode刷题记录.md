@@ -1900,28 +1900,35 @@ int main() {
 ## 快排模板
 
 ```c++
-//快速排序模板
-void quickSort(int arr[100], int begin, int end) {
+void quickSort(vector<int>& arr, int begin, int end) {
     if (begin >= end) {
         return;
     }
-    int tmp = arr[begin];
-    int i = begin, j = end;
+
+    int base = arr[begin];
+
+    int i = begin;
+    int j = end;
 
     while (i < j) {
-        while (arr[j] >= tmp && i < j) {
+        // 一定要先 --j，因为基准是第一个元素，可能是最小值
+        while (arr[j] >= base && i < j) {
             --j;
         }
-        arr[i] = arr[j];    //找到第一个比基准小的元素 
-        while (arr[i] <= tmp && i < j) {
+        while (arr[i] <= base && i < j) {
             ++i;
         }
-        arr[j] = arr[i];
+        if (i < j) {
+            swap(arr[i], arr[j]);
+        }
     }
-    //也可以是arr[i]，因为循环最后跳出来 i == j
-    arr[j] = tmp;
-    quickSort(arr, begin, j - 1);
-    quickSort(arr, j + 1, end);
+
+    arr[begin] = arr[i];
+    arr[i] = base;      // 确定基准的位置
+
+    // i 和 j 没区别
+    quickSort(arr, begin, i - 1);
+    quickSort(arr, i + 1, end);
 }
 ```
 
