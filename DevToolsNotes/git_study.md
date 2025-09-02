@@ -1,3 +1,5 @@
+# Git 入门
+
 ## 一、`Git`基础
 
 #### 1.1 常用命令
@@ -31,9 +33,9 @@ git reflog	# 记录每一次 git commit（对于不小心的版本回退操作�
 #### 1.4 撤销修改
 
 ```bash
-git checkout -- filename  # 撤销工作区修改的文件内容
+git checkout -- filename  	# 撤销工作区修改的文件内容
 git reset HEAD filename		# 可以把暂存区的修改撤销掉，重新放回工作区
-git reset --hard HEAD			# 如果修改提交到了本地仓库，直接用版本回退的功能即可
+git reset --hard HEAD		# 如果修改提交到了本地仓库，直接用版本回退的功能即可
 ```
 
 #### 1.5 删除文件
@@ -273,21 +275,9 @@ git push origin :refs/tags/<tag_name>	# 删除远程仓库 origin 中，名为 t
 > - 每个仓库的 Git 配置文件都放在 `.git/config` 文件中
 > - 当前用户的 Git 配置文件放在用户主目录下的一个隐藏文件`.gitconfig`中
 
-## 八、Git 提交规范
+## 八、使用 `SourceTree`
 
-> 执行 `git commit -m ""` 命令时，添加注释有如下规范，可以很好地描述本次提交所针对的内容。
->
-> - feat 新功能
-> - fix 修复 bug
-> - docs 文档
-> - style 调整代码格式
-> - refactor 重构（非新增功能，也非 bug 修复的代码变动）
-> - perf 代码优化
-> - test 增加测试
-> - build 打包相关、外部依赖变动
-> - ci 持续集成、自动构建相关变动
-> - chore 其他改动（非 src，也非 test 的改动）
-> - revert 代码回退
->
-> 如：`git commit -m "feat: 新增添加功能模块"`
+`SourceTree` 为 Git 可视化工具。
+
+## 九、SSH 公钥和私钥的区别
 

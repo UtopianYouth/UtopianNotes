@@ -957,6 +957,9 @@ void Demo06() {
 
 理解二叉搜索树的概念，对于二叉搜索树每一个节点，其左子树的值都小于该节点的值，其右子树的值都大于该节点的值，所以二叉搜索树的中序遍历是一个有序的序列。
 
+> - 学会使用栈实现中序遍历；
+> - 也可以使用递归。
+
 ### [LCR 156](https://leetcode.cn/problems/xu-lie-hua-er-cha-shu-lcof/description/)：序列化与反序列化二叉树
 
 属于开放性题目，类似于加密和解密算法，但是题目对序列化和反序列化没有要求，可以自由发挥。
@@ -1244,7 +1247,7 @@ void Demo06() {
 >
 > - 如果时间间隔不够插入其它的所有任务，返回数组的长度即可
 >
-> 需要注意出现次数最多的任务可能有多种。（😄😄）
+> 需要注意出现次数最多的任务可能有多种（😄😄）。
 
 ### [LC 435](https://leetcode.cn/problems/non-overlapping-intervals/description/)：无重叠区间
 
@@ -1889,3 +1892,43 @@ int main() {
 ### [LC 283](https://leetcode.cn/problems/move-zeroes/description/?envType=study-plan-v2&envId=top-100-liked)：移动零
 
 ### [LC 42](https://leetcode.cn/problems/trapping-rain-water/description/?envType=study-plan-v2&envId=top-100-liked)：接雨水
+
+
+
+# 第十三章 基本算法补充
+
+## 快排模板
+
+```c++
+void quickSort(vector<int>& arr, int begin, int end) {
+    if (begin >= end) {
+        return;
+    }
+
+    int base = arr[begin];
+
+    int i = begin;
+    int j = end;
+
+    while (i < j) {
+        // 一定要先 --j，因为基准是第一个元素，可能是最小值
+        while (arr[j] >= base && i < j) {
+            --j;
+        }
+        while (arr[i] <= base && i < j) {
+            ++i;
+        }
+        if (i < j) {
+            swap(arr[i], arr[j]);
+        }
+    }
+
+    arr[begin] = arr[i];
+    arr[i] = base;      // 确定基准的位置
+
+    // i 和 j 没区别
+    quickSort(arr, begin, i - 1);
+    quickSort(arr, i + 1, end);
+}
+```
+
