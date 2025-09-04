@@ -275,21 +275,29 @@ git push origin :refs/tags/<tag_name>	# 删除远程仓库 origin 中，名为 t
 > - 每个仓库的 Git 配置文件都放在 `.git/config` 文件中
 > - 当前用户的 Git 配置文件放在用户主目录下的一个隐藏文件`.gitconfig`中
 
-## 八、Git 提交规范
+## 八、Git 提交的一些代码规范
 
-> 执行 `git commit -m ""` 命令时，添加注释有如下规范，可以很好地描述本次提交所针对的内容。
+在项目开发的过程中，使用 `git commit -m "description"` 提交代码时，`-m` 之后的描述是有规范的。
+> description 的组成结构为 `<type>(<scope>): <subject>`，比如 `feat: add cpp notes`。
 >
-> - feat 新功能
-> - fix 修复 bug
-> - docs 文档
-> - style 调整代码格式
-> - refactor 重构（非新增功能，也非 bug 修复的代码变动）
-> - perf 代码优化
-> - test 增加测试
-> - build 打包相关、外部依赖变动
-> - ci 持续集成、自动构建相关变动
-> - chore 其他改动（非 src，也非 test 的改动）
-> - revert 代码回退
+> | 组成部分  | 是否必选 | 描述                                                   | 示例                                   |
+> | :-------- | :------- | :----------------------------------------------------- | :------------------------------------- |
+> | `type`    | 必选     | 说明本次提交的**性质**，是规范的核心                   | `feat`, `fix`, `docs`                  |
+> | `scope`   | 可选     | 说明本次提交影响的范围或模块，通常是文件名、功能模块名 | `(auth)`, `(user-profile)`, `(config)` |
+> | `subject` | 必选     | 本次提交的简短描述                                     |                                        |
 >
-> 如：`git commit -m "feat: 新增添加功能模块"`
-
+> <font color = red>type 详解</font>
+>
+> | 类型       | 描述                                                         | 示例                                                 |
+> | :--------- | :----------------------------------------------------------- | :--------------------------------------------------- |
+> | `feat`     | **新功能**：提交一个全新的功能                               | `feat(auth): add password reset functionality`       |
+> | `fix`      | **修复Bug**：修复项目中的某个Bug                             | `fix(api): prevent SQL injection in query params`    |
+> | `docs`     | **文档更新**：仅修改了文档内容                               | `docs: update API usage examples in README`          |
+> | `style`    | **代码样式**：修改代码样式，如空格、格式化、分号等           | `style: format code according to Prettier rules`     |
+> | `refactor` | **代码重构**：既不是修Bug也不是加新功能的代码改动，提高可读性/性能。 | `refactor(utils): simplify data validation function` |
+> | `perf`     | **性能优化**：提升性能的代码更改。                           | `perf: optimize image loading with lazy loading`     |
+> | `test`     | **测试相关**：增加或修改测试用例。                           | `test(user): add unit tests for user registration`   |
+> | `build`    | **构建系统**：影响构建系统或外部依赖的更改，如Webpack、Gulp、npm。 | `build: update webpack to version 5`                 |
+> | `ci`       | **CI配置**：更改持续集成相关的配置和脚本，如 GitHub Actions、GitLab CI。 | `ci: add automated deployment workflow`              |
+> | `chore`    | **杂项任务**：其他不修改源码或测试文件的杂项改动。           | `chore: update npm dependencies to latest versions`  |
+> | `revert`   | **回滚提交**：撤销之前的某次提交。                           | `revert: revert feat(payment): add new gateway`      |
