@@ -213,7 +213,7 @@ int main() {
 
 
 
-# 第三章 二分查找基础
+# 第三章 算法基础
 
 ## 3.1 正常二分
 
@@ -1992,7 +1992,7 @@ void quickSort(vector<int>& arr, int begin, int end) {
 
 
 
-# 第十二章 Hot100补充
+# 第十三章 Hot100补充
 
 ## 12.1 哈希
 
